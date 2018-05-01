@@ -3,22 +3,21 @@ import {
   ControlLabel,
   FormGroup,
   FormControl,
-  HelpBlock,
-  Feedback
+  HelpBlock
 } from "react-bootstrap";
 
 class Input extends React.Component {
+  state = { value: "" };
+
   constructor(props, context) {
     super(props, context);
-
     this.handleChange = this.handleChange.bind(this);
-
-    this.state = {
-      value: ""
-    };
   }
   handleChange(e) {
     this.setState({ value: e.target.value });
+  }
+  componentDidMount() {
+    this.setState({ value: this.props.value });
   }
   render() {
     return (
@@ -32,6 +31,7 @@ class Input extends React.Component {
           value={this.state.value}
           placeholder={this.props.placeholder}
           onChange={this.handleChange}
+          bsSize="large"
         />
         <HelpBlock>{this.props.help}</HelpBlock>
       </FormGroup>
