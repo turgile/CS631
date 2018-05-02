@@ -8,6 +8,8 @@ import Exercise from "./Exercise";
 import HumanResources from "./HumanResources";
 import { Grid, Row, Col } from "react-bootstrap";
 
+import AWS from "aws-sdk";
+
 Amplify.configure({
   Auth: {
     // REQUIRED - Amazon Cognito Identity Pool ID
@@ -24,7 +26,7 @@ Amplify.configure({
   API: {
     endpoints: [
       {
-        name: "ServerlessQueryApi",
+        name: "EmployeeUpdate",
         endpoint:
           "https://7w73iu6up9.execute-api.us-east-1.amazonaws.com/development"
       }
@@ -41,8 +43,8 @@ class App extends Component {
       }
     );
     var params = {
-      MaxResults: 0 ,
-      NextToken: "STRING_VALUE"
+      MaxResults: 0,
+      NextToken: AWS.CognitoIdentity.
     };
     cognitoidentityserviceprovider.listUserPools(params, function(err, data) {
       if (err) console.log(err, err.stack);

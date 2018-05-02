@@ -38,10 +38,11 @@ class HumanResources extends Component {
       headers: {}, // OPTIONAL
       response: true // OPTIONAL (return entire response object instead of response.data)
     };
-    API.get("ServerlessQueryApi", "/employee", init)
+    API.get("EmployeeUpdate", "/employee", init)
       .then(response => {
         //let employees = JSON.parse(response.data.body);
         this.parse(response.data.body);
+        console.log(response.data);
       })
       .catch(error => {
         console.log(error);
