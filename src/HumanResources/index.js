@@ -42,7 +42,7 @@ class HumanResources extends Component {
       .then(response => {
         //let employees = JSON.parse(response.data.body);
         this.parse(response.data.body);
-        console.log(response.data);
+        console.log(response);
       })
       .catch(error => {
         console.log(error);

@@ -1,6 +1,7 @@
 import React from "react";
 import { Navbar, Nav, NavItem } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import Authorization from "./HOC/Authorization";
 
 const navigation = props => {
   return (
@@ -13,15 +14,21 @@ const navigation = props => {
       </Navbar.Header>
       <Navbar.Collapse>
         <Nav>
-          <NavItem eventKey={1} href="/human-resources">
-            Human Resources
-          </NavItem>
-          <NavItem eventKey={2} href="/class-management">
-            Class
-          </NavItem>
-          <NavItem eventKey={3} href="/exercise-management">
-            Exercise
-          </NavItem>
+          <Authorization group="human-resources">
+            <NavItem eventKey={1} href="/human-resources">
+              Human Resources
+            </NavItem>
+          </Authorization>
+          <Authorization group="class-management">
+            <NavItem eventKey={1} href="/class-management">
+              Class
+            </NavItem>
+          </Authorization>
+          <Authorization group="exercise-management">
+            <NavItem eventKey={1} href="/exercise-management">
+              Exercise
+            </NavItem>
+          </Authorization>
         </Nav>
         <Nav pullRight />
       </Navbar.Collapse>

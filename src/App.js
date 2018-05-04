@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Amplify, { Auth } from "aws-amplify";
+import Amplify, { Auth, Signer } from "aws-amplify";
 import { withAuthenticator } from "aws-amplify-react";
 import Navigation from "./navbar";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -7,7 +7,6 @@ import Home from "./Home";
 import Exercise from "./Exercise";
 import HumanResources from "./HumanResources";
 import { Grid, Row, Col } from "react-bootstrap";
-
 import AWS from "aws-sdk";
 
 Amplify.configure({
@@ -36,22 +35,6 @@ Amplify.configure({
 
 class App extends Component {
   render() {
-    /*var cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider(
-      {
-        region: "us-east-2",
-        apiVersion: "2016-04-18"
-      }
-    );
-    var params = {
-      MaxResults: 0,
-      NextToken: AWS.CognitoIdentity.
-    };
-    cognitoidentityserviceprovider.listUserPools(params, function(err, data) {
-      if (err) console.log(err, err.stack);
-      // an error occurred
-      else console.log(data); // successful response
-    });*/ // Create the IAM service object
-
     return (
       <div className="App">
         <Router>
