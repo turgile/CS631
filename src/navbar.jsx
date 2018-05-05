@@ -24,7 +24,7 @@ const navigation = props => {
 							Class
 						</NavItem>
 					</Authorization>
-					<Authorization group="exercise-management">
+					<Authorization group="human-resources">
 						<NavItem eventKey={1} href="/exercise-management">
 							Exercise
 						</NavItem>

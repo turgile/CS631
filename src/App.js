@@ -3,7 +3,7 @@ import Amplify from "aws-amplify";
 import { withAuthenticator } from "aws-amplify-react";
 import Navigation from "./navbar";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import Home from "./Home";
+import Dashboard from "./Dashboard";
 import Exercise from "./Exercise";
 import Employee from "./Employee";
 import Membership from "./Membership";
@@ -48,7 +48,7 @@ class App extends Component {
 						</Row>
 						<Row>
 							<Col>
-								<Route exact path="/" component={Home} />
+								<Route exact path="/" component={Dashboard} />
 								<Route
 									path="/exercise-management"
 									component={Exercise}
