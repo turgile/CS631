@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Amplify, { Auth } from "aws-amplify";
 
 class Authorization extends Component {
-	state = { show: false, group: null };
 	constructor(props) {
 		super(props);
 		if (this.props.group == null) {
@@ -18,8 +17,12 @@ class Authorization extends Component {
 					if (err) {
 						return;
 					}
-					let group = session.getAccessToken().payload["cognito:groups"];
-					this.setState({ show: group.indexOf(this.state.group) >= 0 });
+					let group = session.getAccessToken().payload[
+						"cognito:groups"
+					];
+					this.setState({
+						show: group.indexOf(this.state.group) >= 0
+					});
 				}.bind(this)
 			);
 		});

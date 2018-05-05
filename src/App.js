@@ -7,6 +7,7 @@ import Home from "./Home";
 import Exercise from "./Exercise";
 import Employee from "./Employee";
 import Membership from "./Membership";
+import Member from "./Member";
 import Room from "./Room";
 import { Grid, Row, Col } from "react-bootstrap";
 
@@ -59,6 +60,10 @@ class App extends Component {
 								<Route
 									path="/membership-management"
 									component={Membership}
+								/>
+								<Route
+									path="/member-management"
+									component={Member}
 								/>
 								<Route
 									path="/room-management"
