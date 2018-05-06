@@ -1,6 +1,12 @@
-import react from 'react';
+import React from "react";
+import {
+	FormGroup,
+	ControlLabel,
+	FormControl,
+	HelpBlock
+} from "react-bootstrap";
 
-export default (FieldGroup = ({ id, label, help, ...props }) => {
+const fieldGroup = ({ id, label, help, ...props }) => {
 	return (
 		<FormGroup controlId={id}>
 			<ControlLabel>{label}</ControlLabel>
@@ -9,3 +15,5 @@ export default (FieldGroup = ({ id, label, help, ...props }) => {
 		</FormGroup>
 	);
 });
+
+export default fieldGroup;

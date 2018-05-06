@@ -3,17 +3,16 @@ import Authorization from "../HOC/Authorization";
 import { Table, Modal, Button } from "react-bootstrap";
 import FieldGroup from "../UI/FieldGroup";
 
-class Exercise extends Component {
+class Room extends Component {
 	model = {
-		name: "",
-		description: ""
+		buildingName: "",
+		roomNumber: "",
+		capacity: 0
 	};
 	state = {
 		show: false,
-		currentExercise: {
-			...this.model
-		},
-		exercises: []
+		currentRoom: { ...this.model },
+		rooms: []
 	};
 	constructor(props, context) {
 		super(props, context);
@@ -23,31 +22,39 @@ class Exercise extends Component {
 
 	showModal = (obj, index) => {
 		return function() {
-			let exercise = { ...obj };
+			let room = { ...obj };
 			if (index != null) {
-				exercise.index = index;
+				room.index = index;
 			}
-			this.setState({ show: true, currentExercise: exercise });
+			this.setState({ show: true, currentRoom: room });
 		}.bind(this);
 	};
-	handleGeneric = (field, e) => {
-		return function(e) {
-			let exercise = { ...this.state.currentExercise };
-			exercise[field] = e.target.value;
-			this.setState({ currentExercise: exercise });
-		}.bind(this);
+	handleChangeRoomNumber = e => {
+		let room = { ...this.state.currentRoom };
+		room.roomNumber = e.target.value;
+		this.setState({ currentRoom: room });
+	};
+	handleChangeCapacity = e => {
+		let room = { ...this.state.currentRoom };
+		room.capacity = e.target.value;
+		this.setState({ currentRoom: room });
+	};
+	handleChangeBuildingName = e => {
+		let room = { ...this.state.currentRoom };
+		room.buildingName = e.target.value;
+		this.setState({ currentRoom: room });
 	};
 	handleCallback = () => {
 		let current = { ...this.state };
-		if (current.currentExercise.index == null) {
-			let exercises = [...current.exercises];
-			exercises.push(current.currentExercise);
-			this.setState({ show: false, exercises: exercises });
+		if (current.currentRoom.index == null) {
+			let rooms = [...current.rooms];
+			rooms.push(current.currentRoom);
+			this.setState({ show: false, rooms: rooms });
 		} else {
-			current.exercises[current.currentExercise.index] = {
-				...current.currentExercise
+			current.rooms[current.currentRoom.index] = {
+				...current.currentRoom
 			};
-			this.setState({ show: false, exercises: current.exercises });
+			this.setState({ show: false, rooms: current.rooms });
 		}
 	};
 
@@ -61,16 +68,18 @@ class Exercise extends Component {
 	componentDidMount() {
 		// TEST
 		let current = { ...this.state };
-		current.exercises.push(
+		current.rooms.push(
 			{
 				id: 1,
-				name: "Dead Lift",
-				description: "Lift Things Up, Put Them Down"
+				buildingName: "Main",
+				roomNumber: "1",
+				capacity: 555
 			},
 			{
 				id: 2,
-				name: "Not Dead Lift",
-				description: "Achieve Six Pack"
+				buildingName: "Library",
+				roomNumber: "2",
+				capacity: 125
 			}
 		);
 		this.setState(current);
@@ -83,23 +92,25 @@ class Exercise extends Component {
 					<thead>
 						<tr>
 							<th>Id</th>
-							<th>Name</th>
-							<th>Description</th>
+							<th>Building Name</th>
+							<th>Room Number</th>
+							<th>Capacity</th>
 						</tr>
 					</thead>
 					<tbody>
-						{this.state.exercises.map((obj, i) => (
+						{this.state.rooms.map((obj, i) => (
 							<tr key={i} onClick={this.showModal(obj, i)}>
 								<td>{obj.id}</td>
-								<td>{obj.name}</td>
-								<td>{obj.description}</td>
+								<td>{obj.buildingName}</td>
+								<td>{obj.roomNumber}</td>
+								<td>{obj.capacity}</td>
 							</tr>
 						))}
 
 						<Modal show={this.state.show} onHide={this.handleClose}>
 							<Modal.Header closeButton>
 								<Modal.Title>
-									{this.state.currentExercise.name}
+									{this.state.currentRoom.type}
 								</Modal.Title>
 							</Modal.Header>
 							<Modal.Body>
@@ -107,23 +118,30 @@ class Exercise extends Component {
 									<FieldGroup
 										id="name"
 										type="text"
-										label="Exercise Name"
-										placeholder="Flutter Kicks"
-										value={this.state.currentExercise.name}
-										onChange={this.handleGeneric("name")}
+										label="Building Name"
+										placeholder="Main"
+										value={
+											this.state.currentRoom.buildingName
+										}
+										onChange={this.handleChangeBuildingName}
 									/>
 									<FieldGroup
-										id="description"
-										type="text"
-										label="Description"
-										placeholder="Test"
+										id="number"
+										type="number"
+										label="Room Number"
+										placeholder="123"
 										value={
-											this.state.currentExercise
-												.description
+											this.state.currentRoom.roomNumber
 										}
-										onChange={this.handleGeneric(
-											"description"
-										)}
+										onChange={this.handleChangeRoomNumber}
+									/>
+									<FieldGroup
+										id="capacity"
+										type="number"
+										label="Capacity"
+										placeholder="121"
+										value={this.state.currentRoom.capacity}
+										onChange={this.handleChangeCapacity}
 									/>
 								</form>
 							</Modal.Body>
@@ -157,11 +175,11 @@ class Exercise extends Component {
 					bsSize="large"
 					onClick={this.showModal(this.model, null)}
 				>
-					New Exercise
+					New Room
 				</Button>
 			</div>
 		);
 	}
 }
 
-export default Exercise;
+export default Room;
