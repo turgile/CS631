@@ -27,7 +27,7 @@ Amplify.configure({
 	API: {
 		endpoints: [
 			{
-				name: "EmployeeUpdate",
+				name: "FitnessClub",
 				endpoint:
 					"https://7w73iu6up9.execute-api.us-east-1.amazonaws.com/development"
 			}

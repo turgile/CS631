@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { API } from "aws-amplify";
 import Authorization from "../HOC/Authorization";
 import { Table, Modal, Button } from "react-bootstrap";
 import FieldGroup from "../UI/FieldGroup";
@@ -14,7 +15,7 @@ class Membership extends Component {
 		currentMembership: {
 			fee: null,
 			type: null,
-			id: null,
+			membershipId: null,
 			advantages: null,
 			index: null
 		},
@@ -37,7 +38,7 @@ class Membership extends Component {
 	};
 	handleChangeFee = e => {
 		let membership = { ...this.state.currentMembership };
-		membership.fee = e.target.value;
+		membership.fee = Number(e.target.value);
 		this.setState({ currentMembership: membership });
 	};
 	handleChangeType = e => {
@@ -54,16 +55,75 @@ class Membership extends Component {
 		let current = { ...this.state };
 		if (current.currentMembership.index == null) {
 			let memberships = [...current.memberships];
-			memberships.push(current.currentMembership);
-			this.setState({ show: false, memberships: memberships });
+			let advantages = current.currentMembership.advantages.split(",");
+			current.currentMembership.advantages = [...advantages];
+
+			API.post("FitnessClub", "/membership", {
+				headers: {},
+				body: { ...current.currentMembership },
+				response: true,
+				queryStringParameters: {}
+			})
+				.then(response => {
+					if (response.data.success) {
+						window.location = window.location;
+					} else {
+						alert(
+							"An unspecified error occurred. Check CloudWatch for information."
+						);
+					}
+				})
+				.catch(error => {
+					let current = { ...this.state };
+					current.show = false;
+					this.setState(current);
+					console.log(error.response);
+				});
 		} else {
-			current.memberships[current.currentMembership.index] = {
-				...current.currentMembership
-			};
-			this.setState({ show: false, memberships: current.memberships });
+			API.put("FitnessClub", "/membership", {
+				headers: {},
+				body: { ...current.currentMembership },
+				response: true,
+				queryStringParameters: {}
+			})
+				.then(response => {
+					if (response.data.success) {
+						window.location = window.location;
+					} else {
+						alert(
+							"An unspecified error occurred. Check CloudWatch for information."
+						);
+					}
+				})
+				.catch(error => {
+					let current = { ...this.state };
+					current.show = false;
+					this.setState(current);
+					console.log(error.response);
+				});
 		}
 	};
-
+	handleDelete() {
+		let current = { ...this.state };
+		API.del("FitnessClub", "/membership", {
+			headers: {},
+			body: { ...current.currentMembership },
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				if (response.data.success) {
+					window.location = window.location;
+				} else {
+					alert(
+						"An unspecified error occurred. Check CloudWatch for information."
+					);
+				}
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
+	}
 	handleClose() {
 		this.setState({ show: false });
 	}
@@ -72,24 +132,19 @@ class Membership extends Component {
 		this.setState({ show: true });
 	}
 	componentDidMount() {
-		// TEST
-		let current = { ...this.state };
-		current.memberships.push(
-			{
-				fee: 12.5,
-				id: 1,
-				type: "Basic",
-				advantages: ["Spa", "Bar"]
-			},
-			{
-				fee: 125.0,
-				id: 2,
-				type: "Advanced",
-				advantages: ["Sauna", "Massage"]
-			}
-		);
-		this.setState(current);
-		// END TEST
+		API.get("FitnessClub", "/membership", {
+			headers: {},
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				let current = { ...this.state };
+				current.memberships = [...response.data.memberships];
+				this.setState(current);
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
 	}
 	render() {
 		return (
@@ -106,7 +161,7 @@ class Membership extends Component {
 					<tbody>
 						{this.state.memberships.map((obj, i) => (
 							<tr key={i} onClick={this.showModal(obj, i)}>
-								<td>{obj.id}</td>
+								<td>{obj.membershipId}</td>
 								<td>{obj.type}</td>
 								<td>{obj.advantages}</td>
 								<td>{obj.fee}</td>
@@ -160,13 +215,16 @@ class Membership extends Component {
 								>
 									Save
 								</Button>
-								<Button
-									bsStyle="danger"
-									bsSize="large"
-									onClick={this.handleClose}
-								>
-									Delete
-								</Button>
+								{this.state.currentMembership.membershipId !=
+								null ? (
+									<Button
+										bsStyle="danger"
+										bsSize="large"
+										onClick={() => this.handleDelete()}
+									>
+										Delete
+									</Button>
+								) : null}
 								<Button
 									bsSize="large"
 									onClick={this.handleClose}

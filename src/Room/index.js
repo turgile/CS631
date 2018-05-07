@@ -1,12 +1,14 @@
 import React, { Component } from "react";
+import { API } from "aws-amplify";
 import Authorization from "../HOC/Authorization";
 import { Table, Modal, Button } from "react-bootstrap";
 import FieldGroup from "../UI/FieldGroup";
 
 class Room extends Component {
 	model = {
-		buildingName: "",
-		roomNumber: "",
+		roomId: null,
+		name: "",
+		number: "",
 		capacity: 0
 	};
 	state = {
@@ -31,33 +33,89 @@ class Room extends Component {
 	};
 	handleChangeRoomNumber = e => {
 		let room = { ...this.state.currentRoom };
-		room.roomNumber = e.target.value;
+		room.number = e.target.value;
 		this.setState({ currentRoom: room });
 	};
 	handleChangeCapacity = e => {
 		let room = { ...this.state.currentRoom };
-		room.capacity = e.target.value;
+		room.capacity = Number(e.target.value);
 		this.setState({ currentRoom: room });
 	};
 	handleChangeBuildingName = e => {
 		let room = { ...this.state.currentRoom };
-		room.buildingName = e.target.value;
+		room.name = e.target.value;
 		this.setState({ currentRoom: room });
 	};
 	handleCallback = () => {
 		let current = { ...this.state };
 		if (current.currentRoom.index == null) {
-			let rooms = [...current.rooms];
-			rooms.push(current.currentRoom);
-			this.setState({ show: false, rooms: rooms });
+			API.post("FitnessClub", "/room", {
+				headers: {},
+				body: { ...current.currentRoom },
+				response: true,
+				queryStringParameters: {}
+			})
+				.then(response => {
+					if (response.data.success) {
+						window.location = window.location;
+					} else {
+						alert(
+							"An unspecified error occurred. Check CloudWatch for information."
+						);
+					}
+				})
+				.catch(error => {
+					let current = { ...this.state };
+					current.show = false;
+					this.setState(current);
+					console.log(error.response);
+				});
 		} else {
-			current.rooms[current.currentRoom.index] = {
-				...current.currentRoom
-			};
-			this.setState({ show: false, rooms: current.rooms });
+			API.put("FitnessClub", "/room", {
+				headers: {},
+				body: { ...current.currentRoom },
+				response: true,
+				queryStringParameters: {}
+			})
+				.then(response => {
+					if (response.data.success) {
+						window.location = window.location;
+					} else {
+						alert(
+							"An unspecified error occurred. Check CloudWatch for information."
+						);
+					}
+				})
+				.catch(error => {
+					let current = { ...this.state };
+					current.show = false;
+					this.setState(current);
+					console.log(error.response);
+				});
 		}
 	};
-
+	handleDelete() {
+		let current = { ...this.state };
+		API.del("FitnessClub", "/room", {
+			headers: {},
+			body: { ...current.currentRoom },
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				console.log(response);
+				if (response.data.success) {
+					window.location = window.location;
+				} else {
+					alert(
+						"An unspecified error occurred. Check CloudWatch for information."
+					);
+				}
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
+	}
 	handleClose() {
 		this.setState({ show: false });
 	}
@@ -66,24 +124,19 @@ class Room extends Component {
 		this.setState({ show: true });
 	}
 	componentDidMount() {
-		// TEST
-		let current = { ...this.state };
-		current.rooms.push(
-			{
-				id: 1,
-				buildingName: "Main",
-				roomNumber: "1",
-				capacity: 555
-			},
-			{
-				id: 2,
-				buildingName: "Library",
-				roomNumber: "2",
-				capacity: 125
-			}
-		);
-		this.setState(current);
-		// END TEST
+		API.get("FitnessClub", "/room", {
+			headers: {},
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				let current = { ...this.state };
+				current.rooms = [...response.data.rooms];
+				this.setState(current);
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
 	}
 	render() {
 		return (
@@ -100,9 +153,9 @@ class Room extends Component {
 					<tbody>
 						{this.state.rooms.map((obj, i) => (
 							<tr key={i} onClick={this.showModal(obj, i)}>
-								<td>{obj.id}</td>
-								<td>{obj.buildingName}</td>
-								<td>{obj.roomNumber}</td>
+								<td>{obj.roomId}</td>
+								<td>{obj.name}</td>
+								<td>{obj.number}</td>
 								<td>{obj.capacity}</td>
 							</tr>
 						))}
@@ -110,7 +163,7 @@ class Room extends Component {
 						<Modal show={this.state.show} onHide={this.handleClose}>
 							<Modal.Header closeButton>
 								<Modal.Title>
-									{this.state.currentRoom.type}
+									{this.state.currentRoom.name}
 								</Modal.Title>
 							</Modal.Header>
 							<Modal.Body>
@@ -120,19 +173,15 @@ class Room extends Component {
 										type="text"
 										label="Building Name"
 										placeholder="Main"
-										value={
-											this.state.currentRoom.buildingName
-										}
+										value={this.state.currentRoom.name}
 										onChange={this.handleChangeBuildingName}
 									/>
 									<FieldGroup
 										id="number"
-										type="number"
+										type="text"
 										label="Room Number"
 										placeholder="123"
-										value={
-											this.state.currentRoom.roomNumber
-										}
+										value={this.state.currentRoom.number}
 										onChange={this.handleChangeRoomNumber}
 									/>
 									<FieldGroup
@@ -153,13 +202,15 @@ class Room extends Component {
 								>
 									Save
 								</Button>
-								<Button
-									bsStyle="danger"
-									bsSize="large"
-									onClick={this.handleClose}
-								>
-									Delete
-								</Button>
+								{this.state.currentRoom.roomId != null ? (
+									<Button
+										bsStyle="danger"
+										bsSize="large"
+										onClick={() => this.handleDelete()}
+									>
+										Delete
+									</Button>
+								) : null}
 								<Button
 									bsSize="large"
 									onClick={this.handleClose}
