@@ -9,6 +9,11 @@ import Employee from "./Employee";
 import Membership from "./Membership";
 import Member from "./Member";
 import Room from "./Room";
+import Class from "./Class";
+import Salary from "./Salary";
+import ClassSignUp from "./ClassSignUp";
+import Profile from "./Profile";
+
 import { Grid, Row, Col } from "react-bootstrap";
 
 Amplify.configure({
@@ -50,25 +55,35 @@ class App extends Component {
 							<Col>
 								<Route exact path="/" component={Dashboard} />
 								<Route
-									path="/exercise-management"
+									path="/management/exercise"
 									component={Exercise}
 								/>
 								<Route
-									path="/employee-management"
+									path="/management/employee"
 									component={Employee}
 								/>
 								<Route
-									path="/membership-management"
+									path="/management/membership"
 									component={Membership}
 								/>
 								<Route
-									path="/member-management"
+									path="/management/member"
 									component={Member}
 								/>
 								<Route
-									path="/room-management"
+									path="/management/room"
 									component={Room}
 								/>
+								<Route
+									path="/management/class"
+									component={Class}
+								/>
+								<Route
+									path="/reports/salary"
+									component={Salary}
+								/>
+								<Route path="/class" component={ClassSignUp} />
+								<Route path="/profile" component={Profile} />
 							</Col>
 						</Row>
 					</Grid>

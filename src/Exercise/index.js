@@ -1,12 +1,15 @@
 import React, { Component } from "react";
+import { API } from "aws-amplify";
 import Authorization from "../HOC/Authorization";
 import { Table, Modal, Button } from "react-bootstrap";
 import FieldGroup from "../UI/FieldGroup";
 
 class Exercise extends Component {
 	model = {
+		exerciseId: null,
 		name: "",
-		description: ""
+		description: "",
+		index: null
 	};
 	state = {
 		show: false,
@@ -40,17 +43,74 @@ class Exercise extends Component {
 	handleCallback = () => {
 		let current = { ...this.state };
 		if (current.currentExercise.index == null) {
-			let exercises = [...current.exercises];
-			exercises.push(current.currentExercise);
-			this.setState({ show: false, exercises: exercises });
+			API.post("FitnessClub", "/exercise", {
+				headers: {},
+				body: { ...current.currentExercise },
+				response: true,
+				queryStringParameters: {}
+			})
+				.then(response => {
+					if (response.data.success) {
+						window.location = window.location;
+					} else {
+						alert(
+							"An unspecified error occurred. Check CloudWatch for information."
+						);
+					}
+				})
+				.catch(error => {
+					let current = { ...this.state };
+					current.show = false;
+					this.setState(current);
+					console.log(error.response);
+				});
 		} else {
-			current.exercises[current.currentExercise.index] = {
-				...current.currentExercise
-			};
-			this.setState({ show: false, exercises: current.exercises });
+			API.put("FitnessClub", "/exercise", {
+				headers: {},
+				body: { ...current.currentExercise },
+				response: true,
+				queryStringParameters: {}
+			})
+				.then(response => {
+					if (response.data.success) {
+						window.location = window.location;
+					} else {
+						alert(
+							"An unspecified error occurred. Check CloudWatch for information."
+						);
+					}
+				})
+				.catch(error => {
+					let current = { ...this.state };
+					current.show = false;
+					this.setState(current);
+					console.log(error.response);
+				});
 		}
 	};
 
+	handleDelete() {
+		let current = { ...this.state };
+		API.del("FitnessClub", "/exercise", {
+			headers: {},
+			body: { ...current.currentExercise },
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				console.log(response);
+				if (response.data.success) {
+					window.location = window.location;
+				} else {
+					alert(
+						"An unspecified error occurred. Check CloudWatch for information."
+					);
+				}
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
+	}
 	handleClose() {
 		this.setState({ show: false });
 	}
@@ -59,22 +119,20 @@ class Exercise extends Component {
 		this.setState({ show: true });
 	}
 	componentDidMount() {
-		// TEST
-		let current = { ...this.state };
-		current.exercises.push(
-			{
-				id: 1,
-				name: "Dead Lift",
-				description: "Lift Things Up, Put Them Down"
-			},
-			{
-				id: 2,
-				name: "Not Dead Lift",
-				description: "Achieve Six Pack"
-			}
-		);
-		this.setState(current);
-		// END TEST
+		API.get("FitnessClub", "/exercise", {
+			headers: {},
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				console.log(response);
+				let current = { ...this.state };
+				current.exercises = [...response.data.exercises];
+				this.setState(current);
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
 	}
 	render() {
 		return (
@@ -90,7 +148,7 @@ class Exercise extends Component {
 					<tbody>
 						{this.state.exercises.map((obj, i) => (
 							<tr key={i} onClick={this.showModal(obj, i)}>
-								<td>{obj.id}</td>
+								<td>{obj.exerciseId}</td>
 								<td>{obj.name}</td>
 								<td>{obj.description}</td>
 							</tr>
@@ -135,13 +193,16 @@ class Exercise extends Component {
 								>
 									Save
 								</Button>
-								<Button
-									bsStyle="danger"
-									bsSize="large"
-									onClick={this.handleClose}
-								>
-									Delete
-								</Button>
+								{this.state.currentExercise.exerciseId !=
+								null ? (
+									<Button
+										bsStyle="danger"
+										bsSize="large"
+										onClick={() => this.handleDelete()}
+									>
+										Delete
+									</Button>
+								) : null}
 								<Button
 									bsSize="large"
 									onClick={this.handleClose}
