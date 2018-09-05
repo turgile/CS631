@@ -1,10 +1,5 @@
-import React from "react";
-import {
-	FormGroup,
-	ControlLabel,
-	FormControl,
-	HelpBlock
-} from "react-bootstrap";
+import React from 'react';
+import { FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
 
 const fieldGroup = ({ id, label, help, ...props }) => {
 	return (
@@ -14,6 +9,6 @@ const fieldGroup = ({ id, label, help, ...props }) => {
 			{help && <HelpBlock>{help}</HelpBlock>}
 		</FormGroup>
 	);
-});
+};
 
 export default fieldGroup;
