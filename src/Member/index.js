@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import Authorization from "../HOC/Authorization";
 import { Table, Modal, Button } from "react-bootstrap";
 import FieldGroup from "../UI/FieldGroup";
+import { API } from "aws-amplify";
 
 class Member extends Component {
 	model = {
+		identity: "",
 		name: "",
 		registrationDate: "",
 		addressMain: "",
@@ -42,18 +44,51 @@ class Member extends Component {
 	};
 	handleCallback = () => {
 		let current = { ...this.state };
-		if (current.currentMember.index == null) {
-			let members = [...current.members];
-			members.push(current.currentMember);
-			this.setState({ show: false, members: members });
-		} else {
-			current.members[current.currentMember.index] = {
-				...current.currentMember
-			};
-			this.setState({ show: false, members: current.members });
-		}
+		console.log(current.currentMember);
+		API.put("FitnessClub", "/member", {
+			headers: {},
+			body: { ...current.currentMember },
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				if (response.data.success) {
+					window.location = window.location;
+				} else {
+					alert(
+						"An unspecified error occurred. Check CloudWatch for information."
+					);
+				}
+			})
+			.catch(error => {
+				let current = { ...this.state };
+				current.show = false;
+				this.setState(current);
+				console.log(error.response);
+			});
 	};
 
+	handleDelete() {
+		let current = { ...this.state };
+		API.del("FitnessClub", "/member", {
+			headers: {},
+			body: { ...current.currentMember },
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				if (response.data.success) {
+					window.location = window.location;
+				} else {
+					alert(
+						"An unspecified error occurred. Check CloudWatch for information."
+					);
+				}
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
+	}
 	handleClose() {
 		this.setState({ show: false });
 	}
@@ -62,32 +97,20 @@ class Member extends Component {
 		this.setState({ show: true });
 	}
 	componentDidMount() {
-		// TEST
-		let current = { ...this.state };
-		current.members.push(
-			{
-				id: 1,
-				name: "Johnny Boy",
-				registrationDate: "05-04-2018",
-				addressMain: "123 Main St",
-				addressSecondary: "Apt A",
-				city: "Newark",
-				state: "NJ",
-				zip: "07101"
-			},
-			{
-				id: 2,
-				name: "Ricky Bobby",
-				registrationDate: "05-04-2018",
-				addressMain: "321 Second St",
-				addressSecondary: "Apt X",
-				city: "Newark",
-				state: "NJ",
-				zip: "07101"
-			}
-		);
-		this.setState(current);
-		// END TEST
+		API.get("FitnessClub", "/member", {
+			headers: {},
+			response: true,
+			queryStringParameters: {}
+		})
+			.then(response => {
+				console.log(response);
+				let current = this.state;
+				current.members = [...response.data.members];
+				this.setState({ ...current });
+			})
+			.catch(error => {
+				console.log(error.response);
+			});
 	}
 	render() {
 		return (
@@ -97,7 +120,6 @@ class Member extends Component {
 						<tr>
 							<th>Id</th>
 							<th>Name</th>
-							<th>Registration Date</th>
 							<th>Address Main</th>
 							<th>Address Secondary</th>
 							<th>City</th>
@@ -108,9 +130,8 @@ class Member extends Component {
 					<tbody>
 						{this.state.members.map((obj, i) => (
 							<tr key={i} onClick={this.showModal(obj, i)}>
-								<td>{obj.id}</td>
+								<td>{obj.identity}</td>
 								<td>{obj.name}</td>
-								<td>{obj.registrationDate}</td>
 								<td>{obj.addressMain}</td>
 								<td>{obj.addressSecondary}</td>
 								<td>{obj.city}</td>
@@ -194,13 +215,15 @@ class Member extends Component {
 								>
 									Save
 								</Button>
-								<Button
-									bsStyle="danger"
-									bsSize="large"
-									onClick={this.handleClose}
-								>
-									Delete
-								</Button>
+								{this.state.currentMember.memberId != null ? (
+									<Button
+										bsStyle="danger"
+										bsSize="large"
+										onClick={() => this.handleDelete()}
+									>
+										Delete
+									</Button>
+								) : null}
 								<Button
 									bsSize="large"
 									onClick={this.handleClose}
@@ -211,13 +234,6 @@ class Member extends Component {
 						</Modal>
 					</tbody>
 				</Table>
-				<Button
-					bsStyle="primary"
-					bsSize="large"
-					onClick={this.showModal(this.model, null)}
-				>
-					New Member
-				</Button>
 			</div>
 		);
 	}
